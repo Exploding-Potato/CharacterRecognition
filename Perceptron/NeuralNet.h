@@ -5,10 +5,10 @@ class NeuralNet
 	arma::Mat<float> weights0_1;
 	arma::Mat<float> weights1_2;
 
-	float(*_Activation)(float);
+	void (*_Activation)(float &);
 
 public:
-	NeuralNet(int inputNodes, int hiddenNodes, int outputNodes, float(*activation)(float));
+	NeuralNet(int inputNodes, int hiddenNodes, int outputNodes, void(*_Activation)(float &));
 	~NeuralNet();
 
 	// It should probably work on const references or sth in the future

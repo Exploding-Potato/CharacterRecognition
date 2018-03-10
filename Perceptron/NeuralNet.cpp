@@ -2,7 +2,7 @@
 #include "NeuralNet.h"
 
 
-NeuralNet::NeuralNet(int inputNodes, int hiddenNodes, int outputNodes, float(*activation)(float)) :
+NeuralNet::NeuralNet(int inputNodes, int hiddenNodes, int outputNodes, void(*activation)(float &)) :
 		_inputNodes(inputNodes), _hiddenNodes(hiddenNodes), _outputNodes(outputNodes), _Activation(activation) {
 	weights0_1.set_size(hiddenNodes, inputNodes + 1);
 	weights1_2.set_size(outputNodes, hiddenNodes + 1);
@@ -30,7 +30,7 @@ arma::Row<float> NeuralNet::PredictVal(arma::Row<short> inputs)
 
 	// Computes the output layer 
 	arma::Row<float> output = hiddenPlus * weights1_2.t();
-	output.for_each(_Activation);
+	output = output.for_each(_Activation);
 
 	return output;
 }

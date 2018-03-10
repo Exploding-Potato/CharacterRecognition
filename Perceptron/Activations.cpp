@@ -3,6 +3,10 @@
 
 float Sigmoid(float x)
 {
-	float e = exp(x);
-	return e / (e + 1);
+	return 1 / (1 + exp(-x));
+}
+
+void SigmoidInPlace(float &x)
+{
+	x = 1 / (1 + exp(-x));
 }
