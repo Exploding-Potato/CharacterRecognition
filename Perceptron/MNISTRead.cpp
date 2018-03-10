@@ -2,15 +2,15 @@
 #include "MNISTRead.h"
 #include <fstream>
 
-int32_t FourCharsToIntBigEndian(unsigned char *chars) {
+int FourCharsToIntBigEndian(unsigned char *chars) {
 	return 16777216 * chars[0] + 65536 * chars[1] + 256 * chars[2] + chars[3];
 }
 
-arma::Row<short> *MNISTReadLabels(std::string filePath, int32_t maxExamples)
+std::vector<short> *MNISTReadLabels(std::string filePath, int maxExamples)
 {
 	// Initializes the values used in the function
-	arma::Row<short> *returnRow;
-	int32_t exampleCount;
+	std::vector<short> *returnRow;
+	int exampleCount;
 
 	// Opens the file stream
 	std::ifstream stream;
@@ -28,7 +28,7 @@ arma::Row<short> *MNISTReadLabels(std::string filePath, int32_t maxExamples)
 	exampleCount = std::min(FourCharsToIntBigEndian(temp), maxExamples);
 
 	// Initializes the returnRow with the correct number of values
-	returnRow = new arma::Row<short>(exampleCount);
+	returnRow = new std::vector<short>(exampleCount);
 
 	// Dumb, but don't have an idea how to make it work on all numbers of labels
 	unsigned char *buffer = new unsigned char();
@@ -38,20 +38,39 @@ arma::Row<short> *MNISTReadLabels(std::string filePath, int32_t maxExamples)
 	for (int i = 0; i < exampleCount; i++)
 	{
 		stream.read((char *)buffer, 1);
-		(*returnRow)(i) = (short)(*buffer);
+		(*returnRow)[i] = (short)(*buffer);
 	}
 
 	return returnRow;
 }
 
-std::vector<arma::Mat<short>> *MNISTReadImages(std::string filePath, int32_t maxExamples)
+std::vector<arma::Row<short>> *MNISTTransformLabels(std::vector<short> labels, int labelsCount)
+{
+	// The return vector
+	std::vector<arma::Row<short>> *returnVec = new std::vector<arma::Row<short>>(labels.size(), arma::Row<short>(10).zeros());
+
+	// Iterators for iterating over two vetors simulteniously (cannot be bothered to zip)
+	std::vector<short>::iterator labelsIt = labels.begin();
+	std::vector<short>::iterator labelsIEnd = labels.end();
+	std::vector<arma::Row<short>>::iterator returnIt = returnVec->begin();
+	std::vector<arma::Row<short>>::iterator returnEnd = returnVec->end();
+
+	// Will die if a number in labels is outside not a positive integer smaller than labelsCount
+	for (; labelsIt != labelsIEnd && returnIt != returnEnd; labelsIt++, returnIt++) {
+		returnIt[*labelsIt] = 1;
+	}
+
+	return returnVec;
+}
+
+std::vector<arma::Mat<short>> *MNISTReadImages(std::string filePath, int maxExamples)
 {
 	// Initializes the values used in the function
 	std::vector<arma::Mat<short>> *returnVec;
-	int32_t exampleCount;
-	int32_t rowCount;
-	int32_t columnCount;
-	int32_t pixelCount;
+	int exampleCount;
+	int rowCount;
+	int columnCount;
+	int pixelCount;
 
 	// Opens the file stream
 	std::ifstream stream;
@@ -107,3 +126,4 @@ std::vector<arma::Mat<short>> *MNISTReadImages(std::string filePath, int32_t max
 
 	return returnVec;
 }
+
